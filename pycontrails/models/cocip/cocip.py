@@ -121,6 +121,14 @@ class Cocip(Model):
           - ``specific_cloud_ice_water_content``
           - ``ice_water_mixing_ratio``
           - ``mass_fraction_of_cloud_ice_in_air``
+        * - Richardson Number
+          - ``richardson_number``
+          - ``richardson_number``
+          - ``richardson_number``
+        * - Eddy Dissipation Rate
+          - ``eddy_dissipation_rate``
+          - ``eddy_dissipation_rate``
+          - ``eddy_dissipation_rate``
 
     .. list-table:: Variable keys for single-level radiation data
         :header-rows: 1
@@ -282,6 +290,8 @@ class Cocip(Model):
             ecmwf.CloudAreaFractionInLayer,
             gfs.TotalCloudCoverIsobaric,
         ),
+        met_var.RichardsonNumber,
+        met_var.EddyDissipationRate,
     )
 
     #: Met data is not optional
@@ -624,6 +634,12 @@ class Cocip(Model):
         interpolate_met(met, self.source, "specific_humidity", **interp_kwargs)
         interpolate_met(met, self.source, "eastward_wind", "u_wind", **interp_kwargs)
         interpolate_met(met, self.source, "northward_wind", "v_wind", **interp_kwargs)
+        
+        # Additional variables added, but not needed to be added if running as normal
+        if (key := "richardson_number") in met:
+            interpolate_met(met, self.source, key, **interp_kwargs)
+        if (key := "eddy_dissipation_rate") in met:
+            interpolate_met(met, self.source, key, **interp_kwargs)
 
         if scale_humidity:
             humidity_scaling.eval(self.source, copy_source=False)
@@ -647,6 +663,7 @@ class Cocip(Model):
                 interpolate_met(met, self.source, key, **interp_kwargs)
             elif (key := "mass_fraction_of_cloud_ice_in_air") in met:
                 interpolate_met(met, self.source, key, **interp_kwargs)
+            
 
             self.source["rho_air"] = thermo.rho_d(
                 self.source["air_temperature"], self.source.air_pressure
@@ -2375,6 +2392,8 @@ def calc_contrail_properties(
     ds_dz = contrail["ds_dz"]
     dsn_dz = contrail["dsn_dz"]
     sigma_yz = contrail["sigma_yz"]
+    # Ri = contrail["richardson_number"]
+    # EDR = contrail["eddy_dissipation_rate"]
 
     # get required radiation
     sdr = contrail["sdr"]

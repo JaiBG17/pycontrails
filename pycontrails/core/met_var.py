@@ -22,6 +22,9 @@ class MetVariable:
     - `NCEP Grib v2 Code Table <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml>`_
 
     Used for defining support parameters in a grib-like fashion.
+
+    Additional variables, RichardsonNumber and EDR added to pressure level variables to support the
+    use of altered diffusivity term equtions.
     """
 
     #: Short variable name.
@@ -326,6 +329,23 @@ CloudAreaFractionInAtmosphereLayer = MetVariable(
     description=("The fraction of the horizontal area of a grid cell that contains cloud."),
 )
 
+RichardsonNumber = MetVariable(
+    short_name="Ri",
+    standard_name="richardson_number",
+    long_name="Richardson Number",
+    units="[-inf - inf]",
+    level_type="isobaricInhPa",
+    description=("Dimentionless Ratio of Total Wind Shear to the Brunt Vaisaila Frequency Squared."),
+)
+
+EddyDissipationRate = MetVariable(
+    short_name="EDR",
+    standard_name="eddy_dissipation_rate",
+    long_name="Eddy Dissipation Rate",
+    units="m**(2/3) s**-1",
+    level_type="isobaricInhPa",
+    description=("cube root of the dissipation rate of turbulent kinetic energy."),
+)
 
 # ----
 # Single level variables
@@ -395,6 +415,8 @@ PRESSURE_LEVEL_VARIABLES = [
     MassFractionOfCloudLiquidWaterInAir,
     MassFractionOfCloudIceInAir,
     CloudAreaFractionInAtmosphereLayer,
+    RichardsonNumber,
+    EddyDissipationRate,
 ]
 
 SINGLE_LEVEL_VARIABLES = [SurfacePressure, TOANetDownwardShortwaveFlux, TOAOutgoingLongwaveFlux]
