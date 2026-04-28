@@ -290,8 +290,8 @@ class Cocip(Model):
             ecmwf.CloudAreaFractionInLayer,
             gfs.TotalCloudCoverIsobaric,
         ),
-        met_var.RichardsonNumber,
-        met_var.EddyDissipationRate,
+        # met_var.RichardsonNumber,
+        # met_var.EddyDissipationRate,
     )
 
     #: Met data is not optional
