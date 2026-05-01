@@ -882,11 +882,10 @@ def phase_relaxation_rate(
 def horizontal_diffusivity(
     ds_dz: npt.NDArray[np.floating],
     depth: npt.NDArray[np.floating],
-    Ri: npt.NDArray[np.floating] | None,
-    air_pressure: npt.NDArray[np.floating] | None,
-    air_temperature: npt.NDArray[np.floating] | None,
-    dT_dz: npt.NDArray[np.floating] | None,
     max_horizontal_diffusivity: float | None,
+    air_pressure: npt.NDArray[np.floating] | None = None,
+    air_temperature: npt.NDArray[np.floating] | None = None,
+    dT_dz: npt.NDArray[np.floating] | None = None,
 ) -> npt.NDArray[np.floating]:
     """
     Calculate contrail horizontal diffusivity.
@@ -900,8 +899,6 @@ def horizontal_diffusivity(
         Contrail depth at each waypoint, [:math:`m`]
 
     *** Optional, but requires other optional variables to be supplied as well.
-    Ri : npt.NDArray[np.floating]
-        Richardson Number at each waypoint
     ***Following are Optional, but requires all and Ri to be supplied as well:
         air_pressure : npt.NDArray[np.floating]
             Pressure altitude at each waypoint, [:math:`Pa`]
@@ -931,14 +928,7 @@ def horizontal_diffusivity(
     The maximum horizontal diffusivity can be limited to 100.0 m^{2} s^{-1}, see Section 2.2 of
     Schumann & Seifert (2025), https://doi.org/10.5194/acp-25-18571-2025
     """
-    if all([Ri,air_pressure, air_temperature, dT_dz]) is True:
-        # Alternative calculation of horizontal diffusivity
-        n_bv = thermo.brunt_vaisala_frequency(air_pressure, air_temperature, dT_dz)
-        n_bv.clip(min=0.001, out=n_bv)
-
-        d_h = 0.1 * (n_bv / (Ri ** 0.5)) * depth ** 2
-    else:
-        d_h = 0.1 * ds_dz * depth**2
+    d_h = 0.1 * ds_dz * depth**2
 
     if max_horizontal_diffusivity is not None:
         d_h = np.minimum(d_h, max_horizontal_diffusivity)
@@ -955,9 +945,9 @@ def vertical_diffusivity(
     turbulent_vertical_velocity_scale: npt.NDArray[np.floating] | float,
     sedimentation_impact_factor: npt.NDArray[np.floating] | float,
     eff_heat_rate: npt.NDArray[np.floating] | None,
-    EDR: npt.NDArray[np.floating] | None,
-    wind_shear_normal: npt.NDArray[np.floating] | None,
-    max_vertical_diffusivity: float | None,
+    EDR: npt.NDArray[np.floating] | None = None,
+    dsn_dz: npt.NDArray[np.floating] | None = None,
+    max_vertical_diffusivity: float | None = None,
 ) -> npt.NDArray[np.floating]:
     """
     Calculate contrail vertical diffusivity.
@@ -985,7 +975,7 @@ def vertical_diffusivity(
     EDR: npt.NDArray[np.floating] | None
         Eddy dissipation rate ie. cube root of turbulent 
         kinetic energy dissipation rate
-    wind_shear_normal: npt.NDArray[np.floating] | None
+    dsn_dz: npt.NDArray[np.floating] | None
         vertical Wind shear normal to the direction of the contrail axis. 
         Calculated in wind_shear.py.
 
@@ -1038,8 +1028,11 @@ def vertical_diffusivity(
         w_prime = turbulent_vertical_velocity_scale
 
 
-    if (eff_heat_rate is None) and all([EDR,wind_shear_normal]):
-        d_v = 2 * EDR**3 * n_bv**-1 * wind_shear_normal**-1
+    if (eff_heat_rate is None):
+        if EDR is not None:
+            if dsn_dz is not None:
+                dsn_dz.clip(min=0.001,out=dsn_dz)
+                d_v = 2 * EDR**3 * (n_bv * dsn_dz) **-1
     else:
         d_v = w_prime**2 / n_bv + sedimentation_impact_factor * terminal_fall_speed * depth_eff
 

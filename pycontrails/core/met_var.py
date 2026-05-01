@@ -415,8 +415,8 @@ PRESSURE_LEVEL_VARIABLES = [
     MassFractionOfCloudLiquidWaterInAir,
     MassFractionOfCloudIceInAir,
     CloudAreaFractionInAtmosphereLayer,
-    RichardsonNumber,
-    EddyDissipationRate,
+    # RichardsonNumber,
+    # EddyDissipationRate,
 ]
 
 SINGLE_LEVEL_VARIABLES = [SurfacePressure, TOANetDownwardShortwaveFlux, TOAOutgoingLongwaveFlux]
