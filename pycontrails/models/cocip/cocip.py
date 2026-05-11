@@ -2399,7 +2399,10 @@ def calc_contrail_properties(
     ds_dz = contrail["ds_dz"]
     dsn_dz = contrail["dsn_dz"]
     sigma_yz = contrail["sigma_yz"]
-    edr = contrail["eddy_dissipation_rate"]
+    if (key := 'eddy_dissipation_rate') in contrail:
+        edr = contrail["eddy_dissipation_rate"]
+    else:
+        edr = None
     # Ri = contrail["richardson_number"]
 
     # get required radiation
