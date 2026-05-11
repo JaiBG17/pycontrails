@@ -2399,10 +2399,9 @@ def calc_contrail_properties(
     ds_dz = contrail["ds_dz"]
     dsn_dz = contrail["dsn_dz"]
     sigma_yz = contrail["sigma_yz"]
-    if (key := 'eddy_dissipation_rate') in contrail:
-        edr = contrail["eddy_dissipation_rate"]
-    else:
-        edr = None
+    edr = contrail.get("eddy_dissipation_rate")
+
+
     # Ri = contrail["richardson_number"]
 
     # get required radiation
@@ -2491,9 +2490,9 @@ def calc_contrail_properties(
         turbulent_vertical_velocity_scale=turbulent_vertical_velocity_scale,
         sedimentation_impact_factor=sedimentation_impact_factor,
         eff_heat_rate=eff_heat_rate,
-        EDR=edr,
         dsn_dz=dsn_dz,
         max_vertical_diffusivity=max_vertical_diffusivity,
+        EDR=edr,
     )
 
     dn_dt_agg = contrail_properties.particle_losses_aggregation(
