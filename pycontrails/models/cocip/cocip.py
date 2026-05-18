@@ -824,9 +824,6 @@ class Cocip(Model):
         u_wind = self._sac_flight["u_wind"]
         v_wind = self._sac_flight["v_wind"]
         air_pressure = self._sac_flight.air_pressure
-        edr = None
-        if "eddy_dissipation_rate" in met:
-            edr = interpolate_met(met, self._sac_flight, "eddy_dissipation_rate", **interp_kwargs)
         
         # flight parameters
         aircraft_mass = self._sac_flight.get_data_or_attr("aircraft_mass")
@@ -869,6 +866,9 @@ class Cocip(Model):
             level=level_lower,
             **interp_kwargs,
         )
+        edr = None
+        if "eddy_dissipation_rate" in met:
+            edr = interpolate_met(met, self._sac_flight, "eddy_dissipation_rate", **interp_kwargs)
 
         # Temperature gradient
         dT_dz = self._sac_flight["dT_dz"] = thermo.T_potential_gradient(
