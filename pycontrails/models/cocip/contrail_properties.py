@@ -1035,7 +1035,8 @@ def vertical_diffusivity(
                 dsn_dz[(dsn_dz >= 0) & (dsn_dz < 0.001)] = 0.001
                 dsn_dz[(dsn_dz < 0) & (dsn_dz > -0.001)] = -0.001
                 #dsn_dz.clip(min=0.001,out=dsn_dz)
-                d_v = 2 * EDR**3 * (n_bv * dsn_dz) **-1
+                d_v = 2 * EDR**3 * (n_bv * dsn_dz) **-1 + sedimentation_impact_factor * terminal_fall_speed * depth_eff
+
     
         
 
