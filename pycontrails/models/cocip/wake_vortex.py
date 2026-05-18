@@ -40,6 +40,7 @@ def max_downward_displacement(
     air_pressure: npt.NDArray[np.floating],
     effective_vertical_resolution: float,
     wind_shear_enhancement_exponent: npt.NDArray[np.floating] | float,
+    edr: npt.NDArray[np.floating] | None = None
 ) -> npt.NDArray[np.floating]:
     """
     Calculate the maximum contrail downward displacement after the wake vortex phase.
@@ -88,6 +89,7 @@ def max_downward_displacement(
         wingspan = wingspan[is_weakly_stratified]
     if isinstance(aircraft_mass, np.ndarray):
         aircraft_mass = aircraft_mass[is_weakly_stratified]
+    edr=edr[is_weakly_stratified] if edr is not None else None
 
     dz_max_weak = downward_displacement_weakly_stratified(
         wingspan=wingspan,
@@ -100,6 +102,7 @@ def max_downward_displacement(
         t_0=t_0[is_weakly_stratified],
         effective_vertical_resolution=effective_vertical_resolution,
         wind_shear_enhancement_exponent=wind_shear_enhancement_exponent,
+        edr = edr,
     )
 
     dz_max_strong[is_weakly_stratified] = dz_max_weak
@@ -194,6 +197,7 @@ def downward_displacement_weakly_stratified(
     t_0: npt.NDArray[np.floating],
     effective_vertical_resolution: float,
     wind_shear_enhancement_exponent: npt.NDArray[np.floating] | float,
+    edr: npt.NDArray[np.floating] | None = None
 ) -> npt.NDArray[np.floating]:
     """
     Calculate the maximum contrail downward displacement under weakly/stably stratified conditions.
@@ -220,6 +224,8 @@ def downward_displacement_weakly_stratified(
         Passed through to :func:`wind_shear.wind_shear_enhancement_factor`, [:math:`m`]
     wind_shear_enhancement_exponent: npt.NDArray[np.floating] | float
         Passed through to :func:`wind_shear.wind_shear_enhancement_factor`
+    edr: npt.NDArray[np.floating] | None = None
+        Eddy dissipation rate (optional) instead of 0.5 * 0.1
 
     Returns
     -------
@@ -243,6 +249,8 @@ def downward_displacement_weakly_stratified(
     # Calculate epsilon and epsilon star
     # In Schumann's Fortran code, epsn = EDR and epsn_st = EPSN
     epsn = turbulent_kinetic_energy_dissipation_rate(ds_dz, shear_enhancement_factor)
+    if edr is not None:
+        epsn = edr
     epsn_st = normalized_dissipation_rate(epsn, wingspan, true_airspeed, aircraft_mass, rho_air)
     return b_0 * (7.68 * (1 - 4.07 * epsn_st + 5.67 * epsn_st**2) * (0.79 - n_bv * t_0) + 1.88)
 

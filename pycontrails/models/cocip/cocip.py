@@ -824,7 +824,10 @@ class Cocip(Model):
         u_wind = self._sac_flight["u_wind"]
         v_wind = self._sac_flight["v_wind"]
         air_pressure = self._sac_flight.air_pressure
-
+        edr = None
+        if "eddy_dissipation_rate" in met:
+            edr = interpolate_met(met, self._sac_flight, "eddy_dissipation_rate", **interp_kwargs)
+        
         # flight parameters
         aircraft_mass = self._sac_flight.get_data_or_attr("aircraft_mass")
         true_airspeed = self._sac_flight["true_airspeed"]
@@ -892,6 +895,7 @@ class Cocip(Model):
             air_pressure,
             effective_vertical_resolution=self.params["effective_vertical_resolution"],
             wind_shear_enhancement_exponent=self.params["wind_shear_enhancement_exponent"],
+            edr=edr,
         )
 
         # derive downwash values and save to data model
