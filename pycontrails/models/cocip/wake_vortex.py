@@ -250,7 +250,7 @@ def downward_displacement_weakly_stratified(
     # In Schumann's Fortran code, epsn = EDR and epsn_st = EPSN
     epsn = turbulent_kinetic_energy_dissipation_rate(ds_dz, shear_enhancement_factor)
     if edr is not None:
-        epsn = edr
+        epsn = edr**3
     epsn_st = normalized_dissipation_rate(epsn, wingspan, true_airspeed, aircraft_mass, rho_air)
     return b_0 * (7.68 * (1 - 4.07 * epsn_st + 5.67 * epsn_st**2) * (0.79 - n_bv * t_0) + 1.88)
 
